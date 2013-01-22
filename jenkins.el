@@ -187,7 +187,8 @@
   (let ((map (make-sparse-keymap)))
     (mapcar (lambda (kpair) (apply 'define-key (cons map kpair)))
             '(("\r" jenkins-visit-current-job)
-              ("c" jenkins-show-current-job-console)))
+              ("c" jenkins-show-current-job-console)
+              ("b" jenkins-job-build-selected-job)))
     map))
 
 (defun jenkins-visit-current-job ()
@@ -229,9 +230,17 @@
                (fill-region p (line-end-position)))))))
 
 (defun jenkins-job-build-job (job)
-  (macroexpand '(with-job job
-                          (url-retrieve
-                           (format "%s/api/json/job/%s/build" base name))))))
+  (eval `(let ,(jenkins-makeletvars job)
+           (url-retrieve
+            (format "%s/api/json/job/%s/build" jenkins-url name)
+            'jenkins-job-refresh-job))))
+
+(defun jenkins-job-build-selected-job ()
+  (interactive)
+  (jenkins-job-build-job (get-text-property (point) 'job)))
+
+(defun jenkins-job-refresh-job (status)
+  "Refresh a specific job -- FIXME")
 
 
 (defun jenkins-visit-job (job)
