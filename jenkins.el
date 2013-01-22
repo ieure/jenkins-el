@@ -1,4 +1,3 @@
-
 ;;; jenkins.el --- Jenkins job control
 
 ;; Copyright (C) 2011, 2013  Ian Eure
@@ -129,7 +128,8 @@
 (defvar jenkins-job-list-mode-map
   (let ((map (make-sparse-keymap)))
     (mapcar (lambda (kpair) (apply 'define-key (cons map kpair)))
-            '(("v" jenkins-switch-views)))
+            '(("v" jenkins-switch-views)
+              ("q" quit-window)))
     map))
 
 (define-derived-mode jenkins-job-list-mode fundamental-mode
