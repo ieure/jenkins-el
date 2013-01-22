@@ -232,7 +232,7 @@
 (defun jenkins-job-build-job (job)
   (eval `(let ,(jenkins-makeletvars job)
            (url-retrieve
-            (format "%s/api/json/job/%s/build" jenkins-url name)
+            (format "%s/job/%s/build" jenkins-url name)
             'jenkins-job-refresh-job))))
 
 (defun jenkins-job-build-selected-job ()
