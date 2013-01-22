@@ -36,6 +36,9 @@
   "The current base URL of Jenkins.")
 (make-local-variable 'jenkins-url)
 
+(defvar jenkins-view nil "The current Jenkins view.")
+(make-local-variable 'jenkins-view)
+
 (defvar jenkins-status nil
   "The status (job list etc) of the Jenkins server.")
 
@@ -129,6 +132,7 @@
   (let ((map (make-sparse-keymap)))
     (mapcar (lambda (kpair) (apply 'define-key (cons map kpair)))
             '(("v" jenkins-switch-views)
+              ("g" jenkins-refresh-view)
               ("q" quit-window)))
     map))
 
@@ -414,14 +418,18 @@
  ;; Views
 
 (defun jenkins-show-view (&optional view)
-  (let ((view (or view "Primary")))
-    (with-current-buffer (pop-to-buffer "*jenkins*")
-      (let ((buffer-read-only nil))
-        (set-text-properties (point-min) (point-max) nil)
-        (erase-buffer)
-        (mapc 'jenkins-insert-job (mapcar 'cdr (jenkins-view-jobs view)))
-        (set-buffer-modified-p nil)
-        (goto-char (point-min))))))
+  (setq jenkins-view (or view jenkins-view "Primary"))
+  (with-current-buffer (pop-to-buffer "*jenkins*")
+    (let ((buffer-read-only nil))
+      (set-text-properties (point-min) (point-max) nil)
+      (erase-buffer)
+      (mapc 'jenkins-insert-job (mapcar 'cdr (jenkins-view-jobs jenkins-view)))
+      (set-buffer-modified-p nil)
+      (goto-char (point-min)))))
+
+(defun jenkins-refresh-view ()
+  (interactive)
+  (jenkins-refresh-status jenkins-url 'jenkins-show-view))
 
 (defun jenkins-view (view-name)
   "Return the view structure for a given view name."
